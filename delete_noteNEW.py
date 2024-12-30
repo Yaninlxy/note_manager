@@ -1,84 +1,100 @@
-# Файл: multiple_notes.py
+def create_note():
+    """Функция для создания новой заметки."""
+    note = {}
+    
+    # Ввод данных о заметке
+    note['username'] = input("Введите имя пользователя: ")
+    note['title'] = input("Введите заголовок заметки: ")
+    note['description'] = input("Введите описание заметки: ")
+    
+    # Проверка на пустые значения
+    while not note['description']:
+        print("Описание не может быть пустым. Пожалуйста, введите описание.")
+        note['description'] = input("Введите описание заметки: ")
+    
+    note['status'] = input("Введите статус заметки (новая, в процессе, выполнено): ").lower()
+    
+    # Проверка на корректность статуса
+    while note['status'] not in ['новая', 'в процессе', 'выполнено']:
+        print("Статус должен быть одним из: новая, в процессе, выполнено.")
+        note['status'] = input("Введите статус заметки (новая, в процессе, выполнено): ").lower()
+    
+    # Ввод даты создания и дедлайна
+    note['created_date'] = input("Введите дату создания (день-месяц-год): ")
+    note['deadline'] = input("Введите дедлайн (день-месяц-год): ")
+    
+    return note
 
-def add_note(notes, name, title, description, status, creation_date, deadline, note_id):
-    """Добавляет заметку в список."""
-    note = {
-        'ID': note_id,
-        'Имя': name,
-        'Заголовок': title,
-        'Описание': description,
-        'Статус': status,
-        'Дата создания': creation_date,
-        'Дедлайн': deadline
-    }
-    notes.append(note)
 
 def display_notes(notes):
-    """Отображает все заметки в понятном формате."""
+    """Функция для отображения списка всех заметок."""
     if not notes:
         print("Список заметок пуст.")
         return
-    print("Список заметок:")
-    for note in notes:
-        print(f"ID: {note['ID']}")
-        print(f"Имя: {note['Имя']}")
-        print(f"Заголовок: {note['Заголовок']}")
-        print(f"Описание: {note['Описание']}")
-        print(f"Статус: {note['Статус']}")
-        print(f"Дата создания: {note['Дата создания']}")
-        print(f"Дедлайн: {note['Дедлайн']}\n")
+    
+    print("\nСписок заметок:")
+    for idx, note in enumerate(notes, start=1):
+        print(f"{idx}.")
+        print(f"   Имя: {note['username']}")
+        print(f"   Заголовок: {note['title']}")
+        print(f"   Описание: {note['description']}")
+        print(f"   Статус: {note['status']}")
+        print(f"   Дата создания: {note['created_date']}")
+        print(f"   Дедлайн: {note['deadline']}")
+        print()
 
-def delete_note_by_id(notes, note_id):
-    """Удаляет заметку по ID."""
-    for i, note in enumerate(notes):
-        if note['ID'] == note_id:
-            del notes[i]
-            print(f"Заметка с ID '{note_id}' удалена.")
-            return
-    print(f"Заметка с ID '{note_id}' не найдена.")
+
+def delete_note(notes):
+    """Функция для удаления заметки по имени пользователя или заголовку."""
+    criteria = input("Введите имя пользователя или заголовок заметки для удаления: ")
+    
+    # Поиск заметки
+    found_notes = [note for note in notes if note['username'] == criteria or note['title'] == criteria]
+    
+    if found_notes:
+        for idx, note in enumerate(found_notes, start=1):
+            print(f"{idx}. Заголовок: {note['title']}, Имя пользователя: {note['username']}")
+        
+        # Запрос у пользователя, какую заметку удалить
+        try:
+            choice = int(input("Введите номер заметки для удаления: ")) - 1
+            note_to_delete = found_notes[choice]
+            notes.remove(note_to_delete)
+            print(f"Заметка '{note_to_delete['title']}' удалена.")
+        except (ValueError, IndexError):
+            print("Неверный выбор. Заметка не была удалена.")
+    else:
+        print("Заметки с таким именем пользователя или заголовком не найдены.")
+
 
 def main():
-    """Главная функция для управления заметками."""
+    """Основная функция программы для управления заметками."""
     notes = []
-    note_id = 1  # Идентификатор для первой заметки
-    print("Добро пожаловать в 'Менеджер заметок'! Вы можете добавить новую заметку.")
-
+    
+    print('Добро пожаловать в "Менеджер заметок"! Вы можете добавить новую заметку.')
+    
     while True:
-        action = input("Выберите действие (добавить/удалить/показать/выход): ").strip().lower()
+        # Создание новой заметки
+        note = create_note()
+        notes.append(note)
         
-        if action == "добавить":
-            name = input("Введите имя пользователя: ")
-            title = input("Введите заголовок заметки: ")
-            description = input("Введите описание заметки: ")
-            status = input("Введите статус заметки (новая, в процессе, выполнено): ")
-            creation_date = input("Введите дату создания (день-месяц-год): ")
-            deadline = input("Введите дедлайн (день-месяц-год): ")
-
-            add_note(notes, name, title, description, status, creation_date, deadline, note_id)
-            note_id += 1  # Увеличиваем ID для следующей заметки
-
-        elif action == "удалить":
-            delete_action = input("Удалить по (ID/имени): ").strip().lower()
-            if delete_action == "id":
-                try:
-                    note_id_to_delete = int(input("Введите ID заметки для удаления: "))
-                    delete_note_by_id(notes, note_id_to_delete)
-                except ValueError:
-                    print("Пожалуйста, введите корректный числовой ID.")
-            elif delete_action == "имени":
-                identifier = input("Введите имя пользователя или заголовок заметки для удаления: ")
-                delete_note_by_identifier(notes, identifier)
-            else:
-                print("Неверный выбор. Пожалуйста, выберите 'ID' или 'имени'.")
-
-        elif action == "показать":
-            display_notes(notes)
-
-        elif action == "выход":
+        # Запрос на добавление еще одной заметки
+        add_another = input("Хотите добавить ещё одну заметку? (да/нет): ").strip().lower()
+        if add_another != 'да':
             break
+    
+    # Отображение всех заметок
+    display_notes(notes)
+    
+    # Возможность удалить заметку
+    if notes:
+        delete_option = input("Хотите удалить заметку? (да/нет): ").strip().lower()
+        if delete_option == 'да':
+            delete_note(notes)
+    
+    # Финальный вывод списка заметок
+    display_notes(notes)
 
-        else:
-            print("Неверная команда. Пожалуйста, выберите 'добавить', 'удалить', 'показать' или 'выход'.")
 
 if __name__ == "__main__":
     main()
