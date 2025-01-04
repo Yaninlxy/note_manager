@@ -1,3 +1,6 @@
+from search_notes_function import search_notes
+
+
 def main_menu():
     """
     Меню действий для управления заметками.
