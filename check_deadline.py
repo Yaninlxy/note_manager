@@ -1,37 +1,25 @@
-def collect_note_titles():
-    notes = {}  # Словарь для хранения заголовков и их статусов
-    while True:
-        title = input("Введите заголовок заметки (или 'стоп' для завершения): ")
-        if title.lower() == 'стоп' or title == '':
-            break
-        if title.strip():  # Проверяем, что заголовок не пустой
-            if title not in notes:  # Проверка на уникальность
-                notes[title] = "Не выполнено"  # Устанавливаем статус по умолчанию
-            else:
-                print("Этот заголовок уже добавлен. Пожалуйста, введите другой.")
-    return notes
+from datetime import datetime
 
-def change_note_status(notes):
-    while True:
-        title = input("Введите заголовок заметки для изменения статуса (или 'стоп' для завершения): ")
-        if title.lower() == 'стоп' or title == '':
-            break
-        if title in notes:
-            new_status = input("Введите новый статус (например, 'Выполнено' или 'Не выполнено'): ")
-            notes[title] = new_status  # Обновляем статус заметки
+def check_deadline():
+    """
+    Проверяет, истёк ли дедлайн, и сообщает, сколько дней осталось или прошло, исключая текущий день.
+    """
+    current_date = datetime.now()
+    print(f"Текущая дата: {current_date.strftime('%d-%m-%Y')}")
+
+    deadline_input = input("Введите дату дедлайна (в формате день-месяц-год): ").strip()
+    try:
+        deadline_date = datetime.strptime(deadline_input, "%d-%m-%Y")
+        delta = (deadline_date.date() - current_date.date()).days
+
+        if delta > 0:
+            print(f"До дедлайна осталось {delta} дней.")
+        elif delta == 0:
+            print("Дедлайн сегодня! Успейте завершить работу.")
         else:
-            print("Такой заголовок не найден.")
+            print(f"Дедлайн истёк {abs(delta) - 1} дней назад.")
+    except ValueError:
+        print("Ошибка: неверный формат даты. Укажите в формате день-месяц-год.")
 
-# Вызов функции для сбора заголовков и вывод их со статусами
-note_titles = collect_note_titles()
-print("\nДобавленные заголовки заметок и их статусы:")
-for title, status in note_titles.items():
-    print(f"{title}: {status}")
-
-# Изменение статусов заметок
-change_note_status(note_titles)
-
-# Вывод обновленных заголовков и статусов
-print("\nОбновленные заголовки заметок и их статусы:")
-for title, status in note_titles.items():
-    print(f"{title}: {status}")
+if __name__ == "__main__":
+    check_deadline()

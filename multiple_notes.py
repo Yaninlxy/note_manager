@@ -1,54 +1,48 @@
 from datetime import datetime
 
-# Получает текущую дату без времени
-def get_current_date():
-    return datetime.now().date()
+def create_multiple_notes():
+    """
+    Создаёт несколько заметок через ввод данных и проверяет состояние дедлайнов.
+    """
+    notes = []
+    print("Добавление новых заметок в менеджер. Оставьте пустым для завершения.")
 
-# Парсит даты в объект datetime, поддерживая разные форматы
-def parse_date(date_str):
-    for fmt in ("%d-%m-%Y", "%Y-%m-%d"):
-        try:
-            return datetime.strptime(date_str, fmt).date()  # Возвращаем только дату
-        except ValueError:
-            continue
-    raise ValueError("Неверный формат даты. Используйте 'день-месяц-год' или 'год-месяц-день'.")
-
-# Проверяет дедлайны для всех заметок.
-def check_deadlines(issues):
-    current_date = get_current_date()
-    
-    for issue in issues:
-        # Преобразуем строку даты в объект date
-        issue_date = parse_date(issue['issue_date'])
-        days_left = (issue_date - current_date).days
-        
-        if days_left < 0:
-            print(f"Дедлайн заметки '{issue['title']}' истёк!")
-        elif days_left == 0:
-            print(f"Дедлайн заметки '{issue['title']}' истекает сегодня!")
-        else:
-            print(f"У вас осталось {days_left} дней до дедлайна заметки '{issue['title']}'.")
-
-def main():
-    issues = []
-    
     while True:
-        title = input("Введите название заметки (или 'выход' для завершения): ")
-        if title.lower() == 'выход':
+        username = input("Введите имя пользователя: ").strip()
+        if not username:
             break
-            
-        while True:  # Вложенный цикл для повторного запроса даты
-            issue_date = input("Введите дедлайн заметки (день-месяц-год или год-месяц-день): ")
-            try:
-                # Проверяем дату перед добавлением в список
-                parsed_date = parse_date(issue_date)
-                # Сохраняем дату в строковом формате для дальнейшего использования
-                issues.append({'title': title, 'issue_date': issue_date})
-                break  # Выходим из внутреннего цикла, если дата корректна
-            except ValueError as e:
-                print(e)  # Выводим сообщение об ошибке и запрашиваем ввод снова
+        title = input("Введите заголовок заметки: ").strip()
+        content = input("Введите описание заметки: ").strip()
+        status = input("Введите статус заметки (новая, в процессе, выполнено): ").strip()
+        created_date = input("Введите дату создания (день-месяц-год): ").strip()
+        issue_date = input("Введите дедлайн (день-месяц-год): ").strip()
+
+        try:
+            issue_datetime = datetime.strptime(issue_date, "%d-%m-%Y")
+            current_date = datetime.now()
+            delta = (issue_datetime - current_date).days
+
+            if delta < 0:
+                print(f"Внимание! Дедлайн истёк {abs(delta)} дней назад.")
+            else:
+                print(f"До дедлайна осталось {delta} дней.")
+
+            note = {
+                "username": username,
+                "title": title,
+                "content": content,
+                "status": status,
+                "created_date": created_date,
+                "issue_date": issue_date,
+            }
+            notes.append(note)
+            print("Заметка добавлена.")
+        except ValueError:
+            print("Ошибка: неверный формат даты дедлайна. Заметка не была добавлена.")
     
-    check_deadlines(issues)
+    print("\nВсе заметки:")
+    for idx, note in enumerate(notes, 1):
+        print(f"{idx}. {note}")
 
 if __name__ == "__main__":
-    main()
+    create_multiple_notes()
