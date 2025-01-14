@@ -1,0 +1,11 @@
+import json
+
+def save_notes_json(notes, filename):
+    """
+    Сохраняет заметки в файл в формате JSON.
+    """
+    try:
+        with open(filename, 'w', encoding='utf-8') as file:
+            json.dump(notes, file, ensure_ascii=False, indent=4)
+    except Exception as e:
+        print(f"Ошибка при сохранении JSON-файла: {e}")
