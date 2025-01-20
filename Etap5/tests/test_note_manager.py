@@ -1,9 +1,5 @@
 import unittest
-from Etap5.data.load_notes_from_file import load_notes_from_file
-from Etap5.data.save_notes_to_file import save_notes_to_file
-from Etap5.utils.validators import validate_note
-#from Etap5.data.file_manager import save_notes_to_file, load_notes_from_file
-from Etap5.interface.user_interface import display_notes
+
 
 class TestNoteManager(unittest.TestCase):
     def setUp(self):
@@ -12,20 +8,20 @@ class TestNoteManager(unittest.TestCase):
         """
         self.notes = [
             {
-                "username": "Alice",
-                "title": "Shopping List",
-                "content": "Buy milk, eggs, and bread.",
+                "username": "Alex",
+                "title": "Shop List",
+                "content": "Buy milk",
                 "status": "new",
-                "created_date": "01-01-2025",
-                "issue_date": "05-01-2025"
+                "created_date": "18-01-2025",
+                "issue_date": "18-01-2025"
             },
             {
-                "username": "Bob",
+                "username": "Anna",
                 "title": "Meeting Notes",
                 "content": "Discuss project milestones.",
                 "status": "in progress",
-                "created_date": "02-01-2025",
-                "issue_date": "06-01-2025"
+                "created_date": "19-01-2025",
+                "issue_date": "20-01-2025"
             }
         ]
         self.test_file = "test_notes.txt"
@@ -35,7 +31,7 @@ class TestNoteManager(unittest.TestCase):
         Проверка корректных данных для валидации.
         """
         valid_note = self.notes[0]
-        self.assertTrue(validate_note(valid_note))
+        self.assertTrue(valid_note(valid_note))
 
     def test_validate_note_invalid(self):
         """
