@@ -1,18 +1,25 @@
-from db_operations import create_table, save_note_to_db, load_notes_from_db, update_note_in_db, delete_note_from_db
+from db_operations import (
+    create_table,
+    save_note_to_db,
+    load_notes_from_db,
+    update_note_in_db,
+    delete_note_from_db,
+    search_notes_by_keyword,
+    filter_notes_by_status
+)
 
-def input_note():
+def add_note_handler(db_path):
     """
-    Ввод данных новой заметки пользователем.
-    :return: словарь с данными заметки
+    Обработчик для добавления заметки.
     """
     username = input("Введите имя пользователя: ")
     title = input("Введите заголовок заметки: ")
     content = input("Введите содержимое заметки: ")
-    status = input("Введите статус (Например: В процессе, Завершено): ")
-    created_date = input("Введите дату создания (в формате день-месяц-год): ")
-    issue_date = input("Введите дедлайн (в формате день-месяц-год): ")
+    status = input("Введите статус заметки (Например: В процессе, Завершено): ")
+    created_date = input("Введите дату создания (в формате ДД-ММ-ГГГГ): ")
+    issue_date = input("Введите дату выполнения (в формате ДД-ММ-ГГГГ): ")
 
-    return {
+    note = {
         "username": username,
         "title": title,
         "content": content,
@@ -21,56 +28,75 @@ def input_note():
         "issue_date": issue_date
     }
 
-def add_note_handler(db_path):
-    """
-    Обработчик для добавления новой заметки.
-    :param db_path: путь к базе данных SQLite
-    """
-    print("Добавление новой заметки:")
-    note = input_note()
     save_note_to_db(note, db_path)
-
-def update_note_handler(db_path):
-    """
-    Обработчик для обновления заметки.
-    :param db_path: путь к базе данных SQLite
-    """
-    try:
-        note_id = int(input("Введите ID заметки, которую хотите обновить: "))
-        print("Введите новые данные для заметки:")
-        updates = {
-            "title": input("Новый заголовок: "),
-            "content": input("Новое содержимое: "),
-            "status": input("Новый статус (Например: В процессе, Завершено): "),
-            "issue_date": input("Новый дедлайн (в формате день-месяц-год): ")
-        }
-        update_note_in_db(note_id, updates, db_path)
-    except ValueError:
-        print("Ошибка: ID должен быть числом.")
-
-def delete_note_handler(db_path):
-    """
-    Обработчик для удаления заметки.
-    :param db_path: путь к базе данных SQLite
-    """
-    try:
-        note_id = int(input("Введите ID заметки, которую хотите удалить: "))
-        delete_note_from_db(note_id, db_path)
-    except ValueError:
-        print("Ошибка: ID должен быть числом.")
 
 def list_notes_handler(db_path):
     """
     Обработчик для отображения всех заметок.
-    :param db_path: путь к базе данных SQLite
     """
     notes = load_notes_from_db(db_path)
     if notes:
-        print("Список заметок:")
+        print("Все заметки:")
         for note in notes:
-            print(f"ID: {note['id']}, Пользователь: {note['username']}, Заголовок: {note['title']}, Статус: {note['status']}, Дата создания: {note['created_date']}, Дедлайн: {note['issue_date']}")
+            print(
+                f"ID: {note['id']}, Пользователь: {note['username']}, Заголовок: {note['title']}, "
+                f"Статус: {note['status']}, Дата создания: {note['created_date']}, "
+                f"Дата выполнения: {note['issue_date']}"
+            )
     else:
-        print("Заметок нет.")
+        print("Заметки отсутствуют.")
+
+def update_note_handler(db_path):
+    """
+    Обработчик для обновления заметки.
+    """
+    note_id = input("Введите ID заметки для обновления: ")
+    title = input("Введите новый заголовок заметки: ")
+    content = input("Введите новое содержимое заметки: ")
+    status = input("Введите новый статус заметки: ")
+    issue_date = input("Введите новую дату выполнения (в формате ДД-ММ-ГГГГ): ")
+
+    updates = {
+        "title": title,
+        "content": content,
+        "status": status,
+        "issue_date": issue_date
+    }
+
+    update_note_in_db(note_id, updates, db_path)
+
+def delete_note_handler(db_path):
+    """
+    Обработчик для удаления заметки.
+    """
+    note_id = input("Введите ID заметки для удаления: ")
+    delete_note_from_db(note_id, db_path)
+
+def search_notes_handler(db_path):
+    """
+    Обработчик поиска заметок по ключевому слову.
+    """
+    keyword = input("Введите ключевое слово для поиска: ")
+    notes = search_notes_by_keyword(keyword, db_path)
+    if notes:
+        print("Результаты поиска:")
+        for note in notes:
+            print(f"ID: {note['id']}, Заголовок: {note['title']}, Содержимое: {note['content']}")
+    else:
+        print("Заметки с таким ключевым словом не найдены.")
+
+def filter_notes_handler(db_path):
+    """
+    Обработчик фильтрации заметок по статусу.
+    """
+    status = input("Введите статус для фильтрации (Например: В процессе, Завершено): ")
+    notes = filter_notes_by_status(status, db_path)
+    if notes:
+        print("Результаты фильтрации:")
+        for note in notes:
+            print(f"ID: {note['id']}, Заголовок: {note['title']}, Статус: {note['status']}")
+    else:
+        print(f"Заметки со статусом '{status}' не найдены.")
 
 def main():
     db_path = 'note_manager.db'
@@ -82,9 +108,11 @@ def main():
         print("2. Обновить заметку")
         print("3. Удалить заметку")
         print("4. Показать все заметки")
-        print("5. Выйти")
+        print("5. Найти заметку по ключевому слову")
+        print("6. Отфильтровать заметки по статусу")
+        print("7. Выйти")
 
-        choice = input("Выберите действие (1-5): ")
+        choice = input("Выберите действие (1-7): ")
         if choice == '1':
             add_note_handler(db_path)
         elif choice == '2':
@@ -94,10 +122,14 @@ def main():
         elif choice == '4':
             list_notes_handler(db_path)
         elif choice == '5':
+            search_notes_handler(db_path)
+        elif choice == '6':
+            filter_notes_handler(db_path)
+        elif choice == '7':
             print("Выход из программы.")
             break
         else:
-            print("Ошибка: выберите действие от 1 до 5.")
+            print("Ошибка: выберите действие от 1 до 7.")
 
 if __name__ == "__main__":
     main()

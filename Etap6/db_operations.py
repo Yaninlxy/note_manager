@@ -144,3 +144,78 @@ def delete_note_from_db(note_id, db_path):
         print(f"Ошибка при удалении заметки из базы данных: {e}")
     finally:
         conn.close()
+
+def search_notes_by_keyword(keyword, db_path):
+    """
+    Ищет заметки, где ключевое слово встречается в title или content.
+    
+    :param keyword: ключевое слово для поиска
+    :param db_path: путь к базе данных SQLite
+    :return: список заметок в виде словарей
+    """
+    conn = create_connection(db_path)
+    if conn is None:
+        print("Ошибка: не удалось установить соединение с базой данных.")
+        return []
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM notes
+            WHERE title LIKE ? OR content LIKE ?;
+        """, (f"%{keyword}%", f"%{keyword}%"))
+        rows = cursor.fetchall()
+        return [
+            {
+                'id': row[0],
+                'username': row[1],
+                'title': row[2],
+                'content': row[3],
+                'status': row[4],
+                'created_date': row[5],
+                'issue_date': row[6],
+            }
+            for row in rows
+        ]
+    except sqlite3.Error as e:
+        print(f"Ошибка при поиске заметок: {e}")
+        return []
+    finally:
+        conn.close()
+
+def filter_notes_by_status(status, db_path):
+    """
+    Возвращает заметки с указанным статусом.
+    
+    :param status: статус для фильтрации
+    :param db_path: путь к базе данных SQLite
+    :return: список заметок в виде словарей
+    """
+    conn = create_connection(db_path)
+    if conn is None:
+        print("Ошибка: не удалось установить соединение с базой данных.")
+        return []
+
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT * FROM notes WHERE status = ?;
+        """, (status,))
+        rows = cursor.fetchall()
+        return [
+            {
+                'id': row[0],
+                'username': row[1],
+                'title': row[2],
+                'content': row[3],
+                'status': row[4],
+                'created_date': row[5],
+                'issue_date': row[6],
+            }
+            for row in rows
+        ]
+    except sqlite3.Error as e:
+        print(f"Ошибка при фильтрации заметок: {e}")
+        return []
+    finally:
+        conn.close()
